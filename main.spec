@@ -7,6 +7,9 @@ added_files = [
          ( '.\Resource\\about-icon.png', 'Resource' ),
          ( '.\Resource\\close-icon.png', 'Resource' ),
          ( '.\Resource\\steam-icon.png', 'Resource' ),
+         ( '.\Resource\\Grey_close_x.png', 'Resource' ),
+         ( '.\Resource\\password_hide_icon.png', 'Resource' ),
+         ( '.\Resource\\password_show_icon.png', 'Resource' ),
          ( '.\Resource\\delete-icon.png', 'Resource' )
          ]
 
