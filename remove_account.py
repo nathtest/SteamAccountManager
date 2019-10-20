@@ -45,7 +45,7 @@ class RemoveAccountDialog(QDialog):
 
         self.layout.addWidget(self.accountCombobox, 0, 1)
 
-        self.layout.addWidget(self.button_remove,1,0)
+        self.layout.addWidget(self.button_remove, 1, 0)
 
         self.layout.addWidget(self.buttonok, 5, 0)
         self.layout.addWidget(self.buttoncancel, 5, 1)

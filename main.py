@@ -12,7 +12,8 @@ import steam_path
 # Import the core and GUI elements of Qt
 from PyQt5.QtCore import QSize
 from PyQt5.QtGui import QIcon
-from PyQt5.QtWidgets import QMainWindow,QAction,QWidget,QVBoxLayout,QPushButton,QComboBox,QMessageBox,QLabel,QApplication
+from PyQt5.QtWidgets import QMainWindow, QAction, QWidget, QVBoxLayout, QPushButton, QComboBox, QMessageBox, QLabel, \
+    QApplication
 
 # to allow windows icon task bar
 myappid = 'nath.app.SAM'  # arbitrary string
@@ -164,31 +165,35 @@ class MainGui(QWidget):
         password = password.replace('\n', '')
 
         steam_thread = SteamThread.SteamThread_launch(login, password)
+        steam_thread.noSteamPath.connect(self.noSteamPath)
         steam_thread.start()
 
         self.thread_launch = steam_thread
 
     def connect(self):
-        thread_shut = SteamThread.SteamThread_shutdown()
-        thread_shut.start()
+        if self.qcombobox_account.currentText() == "No account(s) registered !":
+            self.noAccountsFound()
+        else:
+            thread_shut = SteamThread.SteamThread_shutdown()
+            thread_shut.start()
 
-        thread_shut.wait()
+            thread_shut.wait()
 
-        self.launch_steam()
+            self.launch_steam()
 
-    def main_window_signal_manager(self):
-        # manage all signal send by the main window or main gui
-        # like refresh or about
-        # row = None
-        # if self.table.selectionModel().selection().indexes():
-        #     for i in self.table.selectionModel().selection().indexes():
-        #         row, column = i.row(), i.column()
+    def noSteamPath(self):
+        self.errorDialog("No Steam Path", "No Steam.exe path ! \nUse Tools->Change Steam path (Ctrl+C)")
 
-        # if self.sender() == self.parent().aboutAction:
-        #     print("about")
-        #     self.aboutPopUp()
+    def noAccountsFound(self):
+        self.errorDialog("No account(s) registered !", "No account(s) registered ! \nUse Tools->Add Account (Ctrl+A)")
 
-        pass
+    def errorDialog(self, title, message):
+        msg = QMessageBox(self)
+        msg.setIcon(QMessageBox.Warning)
+        msg.setText(message)
+        msg.setWindowTitle(title)
+        msg.setStandardButtons(QMessageBox.Ok)
+        msg.exec_()
 
     def aboutPopUp(self):
         mailLabel = QLabel("<a href='mailto:ponceau.nathanael@gmail.com'>ponceau.nathanael@gmail.com</a>")

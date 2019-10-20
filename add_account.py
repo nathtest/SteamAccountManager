@@ -2,8 +2,10 @@
 import sys
 import os
 from pathlib import Path
-from PyQt5.QtCore import Qt
+from PyQt5.QtCore import Qt,QSize
 from PyQt5.QtWidgets import QDialog, QLabel, QGridLayout, QApplication, QPushButton, QLineEdit
+from PyQt5.QtGui import QIcon
+import CustumLineEdit
 
 
 class AddAccountDialog(QDialog):
@@ -14,7 +16,8 @@ class AddAccountDialog(QDialog):
     def __init__(self, parent=None, area=None):
         super(AddAccountDialog, self).__init__(parent)
 
-        local_program_folder_path = os.path.normpath(os.path.normpath(Path.home()) + "\AppData\Local\SteamAccountManager")
+        local_program_folder_path = os.path.normpath(
+            os.path.normpath(Path.home()) + "\AppData\Local\SteamAccountManager")
         self.filename = os.path.join(local_program_folder_path, 'accounts.txt')
         # modify
         self.diag_modify = False  # use the diag as a modify dialog
@@ -26,16 +29,30 @@ class AddAccountDialog(QDialog):
         self.errorlabel = QLabel()
 
         # qlinedit
-        self.loginLineEdit = QLineEdit()
-        self.passwordLineEdit = QLineEdit()
+        self.loginLineEdit = CustumLineEdit.ButtonLineEdit()
+        self.passwordLineEdit = CustumLineEdit.ButtonLineEdit()
+        self.passwordLineEdit.setEchoMode(QLineEdit.Password)
+
+        #icon
+        self.password_show_icon = QIcon(resource_path("resource/password_show_icon.png"))
+        self.password_hide_icon = QIcon(resource_path("resource/password_hide_icon.png"))
 
         # qbutton
         self.buttonok = QPushButton("Ok")
         self.buttoncancel = QPushButton("Annuler")
 
+        self.buttonshowpassword = QPushButton()
+        self.buttonshowpassword.setDefault(False)
+        self.buttonshowpassword.setAutoDefault(False)
+        self.buttonshowpassword.setIcon(self.password_show_icon)
+        self.buttonshowpassword.setStyleSheet('border: 0px; padding: 0px;')
+        self.buttonshowpassword.setCursor(Qt.ArrowCursor)
+        self.buttonshowpassword.setToolTip("Show password")
+
         # signal
         self.buttonok.clicked.connect(self.choice)
         self.buttoncancel.clicked.connect(self.choice)
+        self.buttonshowpassword.clicked.connect(self.showpassword)
 
         # layout
         self.layout = QGridLayout()
@@ -43,6 +60,7 @@ class AddAccountDialog(QDialog):
         self.layout.addWidget(self.loginLineEdit, 0, 1)
         self.layout.addWidget(self.passwordLabel, 1, 0)
         self.layout.addWidget(self.passwordLineEdit, 1, 1)
+        self.layout.addWidget(self.buttonshowpassword, 1, 2)
 
         self.layout.addWidget(self.errorlabel, 4, 1)
 
@@ -53,6 +71,16 @@ class AddAccountDialog(QDialog):
         self.setWindowTitle("Add account")
         self.setFixedSize(self.sizeHint().width() + 100, self.sizeHint().height())
         self.setWindowFlags(Qt.Dialog | Qt.MSWindowsFixedSizeDialogHint)
+
+    def showpassword(self):
+        if self.passwordLineEdit.echoMode() == QLineEdit.Normal:
+            self.passwordLineEdit.setEchoMode(QLineEdit.Password)
+            self.buttonshowpassword.setIcon(self.password_show_icon)
+            self.buttonshowpassword.setToolTip("Show password")
+        elif self.passwordLineEdit.echoMode() == QLineEdit.Password:
+            self.passwordLineEdit.setEchoMode(QLineEdit.Normal)
+            self.buttonshowpassword.setIcon(self.password_hide_icon)
+            self.buttonshowpassword.setToolTip("Hide password")
 
     def choice(self):
         if self.sender() == self.buttonok:
@@ -91,6 +119,18 @@ class AddAccountDialog(QDialog):
 
         if dialog.exec_() == QDialog.Accepted:
             return dialog.result()
+
+
+def resource_path(relative_path):
+    '''
+    Using this function to get the path of bundled resource into .exe with pyinstaller.
+    ref:https://www.reddit.com/r/learnpython/comments/4kjie3/how_to_include_gui_images_with_pyinstaller/
+    :param relative_path:
+    :return:
+    '''
+    if hasattr(sys, '_MEIPASS'):
+        return os.path.join(sys._MEIPASS, relative_path)
+    return os.path.join(os.path.abspath("."), relative_path)
 
 
 if __name__ == '__main__':
